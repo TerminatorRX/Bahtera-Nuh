@@ -1,0 +1,960 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Informasi Jemaat & Keuangan - Jemaat Bahtera Nuh</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+
+    <!-- Mobile Navigation Bar (Header) -->
+    <header class="bg-emerald-800 text-white shadow-md px-4 py-3 sticky top-0 z-40 flex justify-between items-center lg:px-8">
+        <div class="flex items-center space-x-3">
+            <div class="bg-white p-1.5 rounded-lg text-emerald-800 shadow">
+                <i data-lucide="church" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="text-base sm:text-lg font-bold leading-tight">Jemaat Bahtera Nuh</h1>
+                <p class="text-xs text-emerald-100">Sistem Informasi Jemaat & Keuangan 7 Pilar</p>
+            </div>
+        </div>
+        <!-- Mobile menu button -->
+        <button id="mobileMenuBtn" class="lg:hidden p-2 hover:bg-emerald-700 rounded-lg transition-colors">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+    </header>
+
+    <div class="flex-1 flex flex-col lg:flex-row relative">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="bg-white w-64 border-r border-slate-200 flex-col justify-between absolute inset-y-0 left-0 transform -translate-x-full lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out z-30 flex h-full min-h-[calc(100vh-60px)]">
+            <div class="p-4 flex-1">
+                <nav class="space-y-1">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-4 py-3 text-sm font-semibold rounded-lg transition-colors text-emerald-800 bg-emerald-50">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                        <span>Dashboard Utama</span>
+                    </button>
+                    <button onclick="switchTab('jemaat')" id="nav-jemaat" class="w-full flex items-center space-x-3 px-4 py-3 text-sm font-semibold rounded-lg transition-colors text-slate-600 hover:bg-slate-50">
+                        <i data-lucide="users" class="w-5 h-5"></i>
+                        <span>Pendataan Jemaat</span>
+                    </button>
+                    <button onclick="switchTab('keuangan')" id="nav-keuangan" class="w-full flex items-center space-x-3 px-4 py-3 text-sm font-semibold rounded-lg transition-colors text-slate-600 hover:bg-slate-50">
+                        <i data-lucide="wallet" class="w-5 h-5"></i>
+                        <span>Pembukuan Kas</span>
+                    </button>
+                    <button onclick="switchTab('laporan')" id="nav-laporan" class="w-full flex items-center space-x-3 px-4 py-3 text-sm font-semibold rounded-lg transition-colors text-slate-600 hover:bg-slate-50">
+                        <i data-lucide="file-text" class="w-5 h-5 text-emerald-600"></i>
+                        <span class="text-emerald-800">Laporan Bulanan & Unduh</span>
+                    </button>
+                </nav>
+            </div>
+            <div class="p-4 border-t border-slate-200">
+                <div class="bg-emerald-50 p-3 rounded-lg text-xs text-emerald-800 text-center">
+                    <p class="font-bold">Penyimpanan Terkunci</p>
+                    <p class="mt-1 text-[10px] text-emerald-600">Data otomatis tersimpan di HP/Komputer Anda</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Overlay for Mobile Sidebar -->
+        <div id="sidebarOverlay" class="hidden fixed inset-0 bg-black bg-opacity-40 z-20 transition-opacity"></div>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 p-4 lg:p-8 overflow-y-auto max-w-7xl mx-auto w-full">
+            
+            <!-- Toast Notification Container -->
+            <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+
+            <!-- ================= TAB: DASHBOARD ================= -->
+            <section id="tab-dashboard" class="tab-content space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-slate-800">Ringkasan Pelayanan & Kas</h2>
+                        <p class="text-sm text-slate-500">Gambaran komprehensif pendataan jemaat serta sebaran saldo 7 pilar kas Jemaat Bahtera Nuh.</p>
+                    </div>
+                </div>
+
+                <!-- 7 PILAR CARD GRID -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Status Saldo 7 Pilar Kas</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <!-- 1. Persembahan -->
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center space-x-3">
+                            <div class="p-2.5 rounded-lg bg-emerald-50 text-emerald-600"><i data-lucide="banknote" class="w-5 h-5"></i></div>
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase">Persembahan</p>
+                                <h4 id="cardPersembahan" class="text-base font-bold text-slate-800">Rp 0</h4>
+                            </div>
+                        </div>
+                        <!-- 2. Persembahan Ekstra -->
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center space-x-3">
+                            <div class="p-2.5 rounded-lg bg-purple-50 text-purple-600"><i data-lucide="heart-handshake" class="w-5 h-5"></i></div>
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase">Perb. Ekstra</p>
+                                <h4 id="cardPerbEkstra" class="text-base font-bold text-slate-800">Rp 0</h4>
+                            </div>
+                        </div>
+                        <!-- 3. Pembangunan -->
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center space-x-3">
+                            <div class="p-2.5 rounded-lg bg-amber-50 text-amber-600"><i data-lucide="hammer" class="w-5 h-5"></i></div>
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase">Pembangunan</p>
+                                <h4 id="cardPembangunan" class="text-base font-bold text-slate-800">Rp 0</h4>
+                            </div>
+                        </div>
+                        <!-- 4. Kas Jemaat -->
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center space-x-3">
+                            <div class="p-2.5 rounded-lg bg-blue-50 text-blue-600"><i data-lucide="wallet" class="w-5 h-5"></i></div>
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase">Kas Jemaat</p>
+                                <h4 id="cardKasJemaat" class="text-base font-bold text-slate-800">Rp 0</h4>
+                            </div>
+                        </div>
+                        <!-- 5. Perpuluhan -->
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center space-x-3">
+                            <div class="p-2.5 rounded-lg bg-teal-50 text-teal-600"><i data-lucide="coins" class="w-5 h-5"></i></div>
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase">Perpuluhan</p>
+                                <h4 id="cardPerpuluhan" class="text-base font-bold text-slate-800">Rp 0</h4>
+                            </div>
+                        </div>
+                        <!-- 6. Kas Natal -->
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center space-x-3">
+                            <div class="p-2.5 rounded-lg bg-rose-50 text-rose-600"><i data-lucide="gift" class="w-5 h-5"></i></div>
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase">Kas Natal</p>
+                                <h4 id="cardKasNatal" class="text-base font-bold text-slate-800">Rp 0</h4>
+                            </div>
+                        </div>
+                        <!-- 7. Janji Iman -->
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center space-x-3">
+                            <div class="p-2.5 rounded-lg bg-indigo-50 text-indigo-600"><i data-lucide="award" class="w-5 h-5"></i></div>
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase">Janji Iman</p>
+                                <h4 id="cardJanjiIman" class="text-base font-bold text-slate-800">Rp 0</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OVERVIEW UTAMA & CHART -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Chart Section -->
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 lg:col-span-2">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-sm font-bold text-slate-800">Grafik Mutasi Finansial</h4>
+                            <span class="text-xs text-slate-400">Total Keseluruhan</span>
+                        </div>
+                        <div class="h-64 relative">
+                            <canvas id="mainDashboardChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Statistik Jemaat & Saldo Bersih Gabungan -->
+                    <div class="space-y-4">
+                        <div class="bg-emerald-800 text-white p-6 rounded-2xl shadow-md flex flex-col justify-between h-40">
+                            <div>
+                                <p class="text-xs text-emerald-200 uppercase font-bold tracking-wider">Total Kas Gabungan</p>
+                                <h3 id="dashTotalKasGabungan" class="text-3xl font-black mt-2">Rp 0</h3>
+                            </div>
+                            <p class="text-[10px] text-emerald-200/80 italic">*Jumlah akumulatif dari 7 pilar kas aktif</p>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                            <h4 class="text-sm font-bold text-slate-800 mb-3">Statistik Jemaat</h4>
+                            <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                <div class="flex items-center space-x-3">
+                                    <div class="p-2 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="users" class="w-5 h-5"></i></div>
+                                    <span class="text-xs font-semibold text-slate-600">Total Jemaat</span>
+                                </div>
+                                <span id="dashTotalJemaat" class="text-lg font-bold text-slate-800">0 Jiwa</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= TAB: DATA JEMAAT ================= -->
+            <section id="tab-jemaat" class="tab-content hidden space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-slate-800">Database Keanggotaan Jemaat</h2>
+                        <p class="text-sm text-slate-500">Kelola data seluruh jemaat Bahtera Nuh dengan mudah.</p>
+                    </div>
+                    <div>
+                        <button onclick="openJemaatModal()" class="w-full md:w-auto bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition-colors flex items-center justify-center space-x-2 shadow-sm">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span>Tambah Jemaat Baru</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="relative flex-1 max-w-md">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i data-lucide="search" class="w-5 h-5"></i></span>
+                        <input type="text" id="jemaatSearch" oninput="filterJemaat()" placeholder="Cari nama atau alamat jemaat..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                    </div>
+                    <div class="flex space-x-2 w-full md:w-auto">
+                        <select id="jemaatFilterSektor" onchange="filterJemaat()" class="flex-1 md:flex-initial bg-slate-50 border border-slate-200 rounded-xl py-2 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="">Semua Sektor/Wilayah</option>
+                            <option value="Sektor 1">Sektor 1</option>
+                            <option value="Sektor 2">Sektor 2</option>
+                            <option value="Sektor 3">Sektor 3</option>
+                            <option value="Sektor 4">Sektor 4</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Jemaat Table / Mobile Cards -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="hidden md:block overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-500 font-semibold uppercase text-xs tracking-wider border-b border-slate-100">
+                                    <th class="py-4 px-6">Nama Lengkap</th>
+                                    <th class="py-4 px-6">Sektor</th>
+                                    <th class="py-4 px-6">No. Telepon</th>
+                                    <th class="py-4 px-6">Alamat</th>
+                                    <th class="py-4 px-6 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="jemaatTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
+                                <!-- JavaScript render -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Mobile view cards -->
+                    <div class="md:hidden p-4 space-y-4" id="jemaatCardsContainer">
+                        <!-- JavaScript render -->
+                    </div>
+                    <div id="jemaatEmptyState" class="hidden py-12 text-center text-slate-400">
+                        <i data-lucide="folder-open" class="w-12 h-12 mx-auto stroke-1 mb-3"></i>
+                        <p class="text-sm">Tidak ada data jemaat yang ditemukan.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= TAB: KEUANGAN ================= -->
+            <section id="tab-keuangan" class="tab-content hidden space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-slate-800">Pembukuan Kas 7 Pilar</h2>
+                        <p class="text-sm text-slate-500">Catat transaksi pemasukan atau pengeluaran secara transparan untuk setiap kas.</p>
+                    </div>
+                    <div>
+                        <button onclick="openKeuanganModal()" class="w-full md:w-auto bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition-colors flex items-center justify-center space-x-2 shadow-sm">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span>Catat Transaksi Baru</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table Riwayat Keuangan -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="p-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50">
+                        <h3 class="text-sm font-bold text-slate-800">Aliran Dana Kas Jemaat</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <select id="keuanganFilterPilar" onchange="filterKeuangan()" class="bg-white border border-slate-200 rounded-xl py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-emerald-500">
+                                <option value="">Semua Pilar Kas</option>
+                                <option value="Persembahan">Persembahan</option>
+                                <option value="Persembahan Ekstra">Persembahan Ekstra</option>
+                                <option value="Pembangunan">Pembangunan</option>
+                                <option value="Kas Jemaat">Kas Jemaat</option>
+                                <option value="Perpuluhan">Perpuluhan</option>
+                                <option value="Kas Natal">Kas Natal</option>
+                                <option value="Janji Iman">Janji Iman</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Table Desktop -->
+                    <div class="hidden md:block overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-500 font-semibold text-xs uppercase tracking-wider border-b border-slate-100">
+                                    <th class="py-4 px-6">Tanggal</th>
+                                    <th class="py-4 px-6">Pilar Kas</th>
+                                    <th class="py-4 px-6">Keterangan</th>
+                                    <th class="py-4 px-6">Jenis</th>
+                                    <th class="py-4 px-6 text-right">Jumlah (Rp)</th>
+                                    <th class="py-4 px-6 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="keuanganTableBody" class="divide-y divide-slate-100 text-slate-700 font-medium">
+                                <!-- JavaScript render -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mobile view cards -->
+                    <div class="md:hidden p-4 space-y-4" id="keuanganCardsContainer">
+                        <!-- JavaScript render -->
+                    </div>
+
+                    <div id="keuanganEmptyState" class="hidden py-12 text-center text-slate-400">
+                        <i data-lucide="folder-open" class="w-12 h-12 mx-auto stroke-1 mb-3"></i>
+                        <p class="text-sm">Belum ada riwayat transaksi dicatatkan.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= TAB: LAPORAN & DOWNLOAD ================= -->
+            <section id="tab-laporan" class="tab-content hidden space-y-6">
+                <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-100 space-y-6">
+                    <div class="max-w-2xl mx-auto text-center space-y-3">
+                        <div class="inline-flex p-3 bg-emerald-50 text-emerald-600 rounded-full mb-2">
+                            <i data-lucide="file-text" class="w-10 h-10"></i>
+                        </div>
+                        <h2 class="text-2xl font-extrabold text-slate-800">Laporan & Ekspor Data Kas Bulanan</h2>
+                        <p class="text-sm text-slate-500">
+                            Unduh seluruh rekapan data mutasi transaksi 7 pilar kas Jemaat Bahtera Nuh ke format spreadsheet (.CSV/Excel) dengan cepat dan akurat.
+                        </p>
+                    </div>
+
+                    <div class="max-w-md mx-auto bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
+                        <h3 class="text-sm font-bold text-slate-700">Pilih Periode Pengunduhan</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Mulai Tanggal</label>
+                                <input type="date" id="lapMulai" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Sampai Tanggal</label>
+                                <input type="date" id="lapSampai" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
+                            </div>
+                        </div>
+                        
+                        <button onclick="unduhLaporanBulanan()" class="w-full mt-4 bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 px-4 rounded-xl text-sm transition-colors flex items-center justify-center space-x-2 shadow-sm">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            <span>Unduh Laporan Keuangan (.CSV)</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ================= MODAL: TAMBAH DATA JEMAAT ================= -->
+    <div id="jemaatModal" class="hidden fixed inset-0 bg-slate-950 bg-opacity-60 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl transform transition-all duration-300">
+            <div class="bg-slate-50 px-6 py-4 border-b border-slate-150 flex items-center justify-between">
+                <h3 id="jemaatModalTitle" class="text-base font-bold text-slate-800">Tambah Data Jemaat</h3>
+                <button onclick="closeJemaatModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <form id="jemaatForm" onsubmit="saveJemaat(event)" class="p-6 space-y-4">
+                <input type="hidden" id="jemaatId">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Nama Lengkap *</label>
+                    <input type="text" id="jemaatNama" required class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Sektor / Wilayah *</label>
+                        <select id="jemaatSektor" required class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
+                            <option value="Sektor 1">Sektor 1</option>
+                            <option value="Sektor 2">Sektor 2</option>
+                            <option value="Sektor 3">Sektor 3</option>
+                            <option value="Sektor 4">Sektor 4</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">No. Telepon</label>
+                        <input type="tel" id="jemaatTelepon" placeholder="Contoh: 08..." class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Alamat Domisili *</label>
+                    <textarea id="jemaatAlamat" required rows="2" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"></textarea>
+                </div>
+                <div class="pt-4 border-t border-slate-100 flex justify-end space-x-2">
+                    <button type="button" onclick="closeJemaatModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-xl text-sm transition">Batal</button>
+                    <button type="submit" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2 px-5 rounded-xl text-sm transition shadow-sm">Simpan Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: CATAT TRANSAKSI KEUANGAN ================= -->
+    <div id="keuanganModal" class="hidden fixed inset-0 bg-slate-950 bg-opacity-60 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl transform transition-all duration-300">
+            <div class="bg-slate-50 px-6 py-4 border-b border-slate-150 flex items-center justify-between">
+                <h3 class="text-base font-bold text-slate-800">Catat Transaksi Keuangan</h3>
+                <button onclick="closeKeuanganModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <form id="keuanganForm" onsubmit="saveKeuangan(event)" class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Pilar Kas *</label>
+                        <select id="keuanganPilar" required class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
+                            <option value="Persembahan">Persembahan</option>
+                            <option value="Persembahan Ekstra">Persembahan Ekstra</option>
+                            <option value="Pembangunan">Pembangunan</option>
+                            <option value="Kas Jemaat">Kas Jemaat</option>
+                            <option value="Perpuluhan">Perpuluhan</option>
+                            <option value="Kas Natal">Kas Natal</option>
+                            <option value="Janji Iman">Janji Iman</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Tanggal Transaksi *</label>
+                        <input type="date" id="keuanganTanggal" required class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Jenis Transaksi *</label>
+                        <select id="keuanganJenis" required class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
+                            <option value="Masuk">Masuk (Penerimaan)</option>
+                            <option value="Keluar">Keluar (Pengeluaran)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Jumlah (Rupiah) *</label>
+                        <input type="number" id="keuanganJumlah" min="1" required placeholder="0" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Keterangan / Deskripsi *</label>
+                    <textarea id="keuanganKeterangan" required rows="2" placeholder="Sebutkan asal dana atau tujuan pengeluaran..." class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"></textarea>
+                </div>
+                <div class="pt-4 border-t border-slate-100 flex justify-end space-x-2">
+                    <button type="button" onclick="closeKeuanganModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-xl text-sm transition">Batal</button>
+                    <button type="submit" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2 px-5 rounded-xl text-sm transition shadow-sm">Simpan Transaksi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: KONFIRMASI HAPUS ================= -->
+    <div id="deleteConfirmModal" class="hidden fixed inset-0 bg-slate-950 bg-opacity-65 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl transform transition-all duration-300 p-6 space-y-4">
+            <div class="flex items-center space-x-3 text-rose-600">
+                <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+                <h3 class="text-lg font-bold text-slate-800">Hapus Permanen?</h3>
+            </div>
+            <p id="deleteConfirmMessage" class="text-sm text-slate-600">Langkah ini tidak dapat dibatalkan. Apakah Anda yakin?</p>
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="closeDeleteModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-xl text-sm transition">Batal</button>
+                <button id="confirmDeleteBtn" class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 px-4 rounded-xl text-sm transition shadow-sm">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= SCRIPT UTAMA KONTROL DATA ================= -->
+    <script>
+        // Data inisiasi default
+        const defaultJemaat = [
+            { id: "j1", nama: "Yohanes Sitorus", sektor: "Sektor 1", telepon: "081290348761", alamat: "Jl. Merdeka No. 45" },
+            { id: "j2", nama: "Maria Sondakh", sektor: "Sektor 2", telepon: "081374628190", alamat: "Perum Indah Lestari Blok C-10" },
+            { id: "j3", nama: "Andreas Prasetyo", sektor: "Sektor 3", telepon: "081198302111", alamat: "Jl. Mawar Gg. 3 No. 12" }
+        ];
+
+        const defaultKeuangan = [
+            { id: "k1", pilar: "Persembahan", tanggal: "2026-05-01", jenis: "Masuk", jumlah: 3300000, keterangan: "Kolekte Umum Mingguan" },
+            { id: "k2", pilar: "Persembahan Ekstra", tanggal: "2026-05-03", jenis: "Masuk", jumlah: 1650000, keterangan: "Persembahan Khusus Sosial" },
+            { id: "k3", pilar: "Pembangunan", tanggal: "2026-05-05", jenis: "Masuk", jumlah: 5350000, keterangan: "Donatur Renovasi Gereja" },
+            { id: "k4", pilar: "Kas Jemaat", tanggal: "2026-05-07", jenis: "Masuk", jumlah: 4100000, keterangan: "Dana Operasional Bulanan Kantor" },
+            { id: "k5", pilar: "Perpuluhan", tanggal: "2026-05-10", jenis: "Masuk", jumlah: 5800000, keterangan: "Setoran Perpuluhan Bpk. Yohanes" },
+            { id: "k6", pilar: "Kas Natal", tanggal: "2026-05-12", jenis: "Masuk", jumlah: 3500000, keterangan: "Kas Masuk Awal Panitia Natal 2026" },
+            { id: "k7", pilar: "Kas Natal", tanggal: "2026-05-14", jenis: "Keluar", jumlah: 450000, keterangan: "DP Pemesanan Perlengkapan Lilin Natal" },
+            { id: "k8", pilar: "Janji Iman", tanggal: "2026-05-15", jenis: "Masuk", jumlah: 4200000, keterangan: "Janji Iman Tahap 1 Panitia" }
+        ];
+
+        // State Aplikasi
+        let jemaatList = JSON.parse(localStorage.getItem('gereja_jemaat_list')) || defaultJemaat;
+        let keuanganList = JSON.parse(localStorage.getItem('gereja_keuangan_list')) || defaultKeuangan;
+        let mainChart = null;
+        let deleteAction = null;
+
+        // Save ke Local Storage
+        function persistData() {
+            localStorage.setItem('gereja_jemaat_list', JSON.stringify(jemaatList));
+            localStorage.setItem('gereja_keuangan_list', JSON.stringify(keuanganList));
+            updateAllViews();
+        }
+
+        // Window On Load
+        window.onload = function() {
+            lucide.createIcons();
+            const todayStr = new Date().toISOString().split('T')[0];
+            document.getElementById('keuanganTanggal').value = todayStr;
+            document.getElementById('lapMulai').value = todayStr.substring(0, 8) + "01";
+            document.getElementById('lapSampai').value = todayStr;
+
+            updateAllViews();
+            initDashboardChart();
+
+            // Mobile Menu
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            mobileMenuBtn.onclick = () => {
+                sidebar.classList.toggle('-translate-x-full');
+                overlay.classList.toggle('hidden');
+            };
+
+            overlay.onclick = () => {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            };
+        };
+
+        // Tab Navigator
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('aside nav button').forEach(el => {
+                el.className = "w-full flex items-center space-x-3 px-4 py-3 text-sm font-semibold rounded-lg transition-colors text-slate-600 hover:bg-slate-50";
+            });
+
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            if (activeBtn) {
+                activeBtn.className = "w-full flex items-center space-x-3 px-4 py-3 text-sm font-semibold rounded-lg transition-colors text-emerald-800 bg-emerald-50";
+            }
+
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+            document.getElementById('sidebarOverlay').classList.add('hidden');
+
+            if (tabId === 'dashboard') {
+                setTimeout(updateChartData, 100);
+            }
+        }
+
+        // Format Rupiah
+        function formatRupiah(val) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(val);
+        }
+
+        // Toast Notification
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-emerald-600' : 'bg-rose-600';
+            
+            toast.className = `flex items-center space-x-3 text-white px-4 py-3 rounded-xl shadow-lg transition-all duration-300 transform translate-y-2 opacity-0 ${bgClass}`;
+            toast.innerHTML = `<i data-lucide="info" class="w-5 h-5"></i><span class="text-sm font-medium">${message}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Open/Close Hapus Modal
+        function openDeleteModal(msg, callback) {
+            document.getElementById('deleteConfirmMessage').innerText = msg;
+            deleteAction = callback;
+            document.getElementById('deleteConfirmModal').classList.remove('hidden');
+
+            document.getElementById('confirmDeleteBtn').onclick = () => {
+                if (deleteAction) deleteAction();
+                closeDeleteModal();
+            };
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteConfirmModal').classList.add('hidden');
+            deleteAction = null;
+        }
+
+        // ================= UPDATE STATS & DATA =================
+        function updateAllViews() {
+            // Hitung Pilar Kas
+            const pilarSaldos = {
+                "Persembahan": 0,
+                "Persembahan Ekstra": 0,
+                "Pembangunan": 0,
+                "Kas Jemaat": 0,
+                "Perpuluhan": 0,
+                "Kas Natal": 0,
+                "Janji Iman": 0
+            };
+
+            let totalGabungan = 0;
+
+            keuanganList.forEach(t => {
+                const jml = Number(t.jumlah);
+                if (t.jenis === 'Masuk') {
+                    pilarSaldos[t.pilar] += jml;
+                    totalGabungan += jml;
+                } else {
+                    pilarSaldos[t.pilar] -= jml;
+                    totalGabungan -= jml;
+                }
+            });
+
+            // Update UI Cards
+            document.getElementById('cardPersembahan').innerText = formatRupiah(pilarSaldos["Persembahan"]);
+            document.getElementById('cardPerbEkstra').innerText = formatRupiah(pilarSaldos["Persembahan Ekstra"]);
+            document.getElementById('cardPembangunan').innerText = formatRupiah(pilarSaldos["Pembangunan"]);
+            document.getElementById('cardKasJemaat').innerText = formatRupiah(pilarSaldos["Kas Jemaat"]);
+            document.getElementById('cardPerpuluhan').innerText = formatRupiah(pilarSaldos["Perpuluhan"]);
+            document.getElementById('cardKasNatal').innerText = formatRupiah(pilarSaldos["Kas Natal"]);
+            document.getElementById('cardJanjiIman').innerText = formatRupiah(pilarSaldos["Janji Iman"]);
+
+            document.getElementById('dashTotalKasGabungan').innerText = formatRupiah(totalGabungan);
+            document.getElementById('dashTotalJemaat').innerText = `${jemaatList.length} Jiwa`;
+
+            filterJemaat();
+            filterKeuangan();
+            updateChartData();
+        }
+
+        // ================= BUSINESS LOGIC: JEMAAT =================
+        function openJemaatModal(id = null) {
+            const modal = document.getElementById('jemaatModal');
+            const form = document.getElementById('jemaatForm');
+            form.reset();
+
+            if (id) {
+                document.getElementById('jemaatModalTitle').innerText = "Edit Data Jemaat";
+                const j = jemaatList.find(x => x.id === id);
+                if (j) {
+                    document.getElementById('jemaatId').value = j.id;
+                    document.getElementById('jemaatNama').value = j.nama;
+                    document.getElementById('jemaatSektor').value = j.sektor;
+                    document.getElementById('jemaatTelepon').value = j.telepon;
+                    document.getElementById('jemaatAlamat').value = j.alamat;
+                }
+            } else {
+                document.getElementById('jemaatModalTitle').innerText = "Tambah Jemaat Baru";
+                document.getElementById('jemaatId').value = "";
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeJemaatModal() {
+            document.getElementById('jemaatModal').classList.add('hidden');
+        }
+
+        function saveJemaat(e) {
+            e.preventDefault();
+            const id = document.getElementById('jemaatId').value;
+            const nama = document.getElementById('jemaatNama').value;
+            const sektor = document.getElementById('jemaatSektor').value;
+            const telepon = document.getElementById('jemaatTelepon').value || '-';
+            const alamat = document.getElementById('jemaatAlamat').value;
+
+            if (id) {
+                const index = jemaatList.findIndex(x => x.id === id);
+                if (index !== -1) {
+                    jemaatList[index] = { id, nama, sektor, telepon, alamat };
+                    showToast("Data jemaat berhasil diperbarui");
+                }
+            } else {
+                const newId = "j_" + Date.now();
+                jemaatList.push({ id: newId, nama, sektor, telepon, alamat });
+                showToast("Jemaat baru berhasil terdaftar");
+            }
+            persistData();
+            closeJemaatModal();
+        }
+
+        function deleteJemaat(id) {
+            const j = jemaatList.find(x => x.id === id);
+            openDeleteModal(`Hapus data jemaat "${j ? j.nama : ''}"?`, () => {
+                jemaatList = jemaatList.filter(x => x.id !== id);
+                showToast("Jemaat berhasil dihapus");
+                persistData();
+            });
+        }
+
+        function filterJemaat() {
+            const query = document.getElementById('jemaatSearch').value.toLowerCase();
+            const filterSektor = document.getElementById('jemaatFilterSektor').value;
+
+            const filtered = jemaatList.filter(j => {
+                const matchQuery = j.nama.toLowerCase().includes(query) || j.alamat.toLowerCase().includes(query);
+                const matchSektor = filterSektor === "" || j.sektor === filterSektor;
+                return matchQuery && matchSektor;
+            });
+
+            renderJemaatTable(filtered);
+        }
+
+        function renderJemaatTable(data) {
+            const tableBody = document.getElementById('jemaatTableBody');
+            const cardsContainer = document.getElementById('jemaatCardsContainer');
+            const emptyState = document.getElementById('jemaatEmptyState');
+
+            tableBody.innerHTML = "";
+            cardsContainer.innerHTML = "";
+
+            if (data.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            data.forEach(j => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-4 px-6 font-bold text-slate-800">${j.nama}</td>
+                    <td class="py-4 px-6 text-slate-500">${j.sektor}</td>
+                    <td class="py-4 px-6 text-slate-500">${j.telepon}</td>
+                    <td class="py-4 px-6 text-slate-500 max-w-xs truncate">${j.alamat}</td>
+                    <td class="py-4 px-6 text-center space-x-1">
+                        <button onclick="openJemaatModal('${j.id}')" class="text-blue-600 hover:bg-blue-50 p-2 rounded-lg transition" title="Edit"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                        <button onclick="deleteJemaat('${j.id}')" class="text-rose-600 hover:bg-rose-50 p-2 rounded-lg transition" title="Hapus"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col justify-between space-y-3";
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-bold text-slate-800">${j.nama}</h4>
+                            <p class="text-xs text-slate-400 mt-0.5">${j.sektor}</p>
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-500 space-y-1">
+                        <p><span class="font-semibold text-slate-600">Telp:</span> ${j.telepon}</p>
+                        <p><span class="font-semibold text-slate-600">Alamat:</span> ${j.alamat}</p>
+                    </div>
+                    <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-200">
+                        <button onclick="openJemaatModal('${j.id}')" class="bg-blue-50 text-blue-700 py-1.5 px-3 rounded-lg text-xs font-bold">Edit</button>
+                        <button onclick="deleteJemaat('${j.id}')" class="bg-rose-50 text-rose-700 py-1.5 px-3 rounded-lg text-xs font-bold">Hapus</button>
+                    </div>
+                `;
+                cardsContainer.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        // ================= BUSINESS LOGIC: KEUANGAN =================
+        function openKeuanganModal() {
+            document.getElementById('keuanganForm').reset();
+            document.getElementById('keuanganTanggal').value = new Date().toISOString().split('T')[0];
+            document.getElementById('keuanganModal').classList.remove('hidden');
+        }
+
+        function closeKeuanganModal() {
+            document.getElementById('keuanganModal').classList.add('hidden');
+        }
+
+        function saveKeuangan(e) {
+            e.preventDefault();
+            const pilar = document.getElementById('keuanganPilar').value;
+            const tanggal = document.getElementById('keuanganTanggal').value;
+            const jenis = document.getElementById('keuanganJenis').value;
+            const jumlah = Number(document.getElementById('keuanganJumlah').value);
+            const keterangan = document.getElementById('keuanganKeterangan').value;
+
+            const newId = "k_" + Date.now();
+            keuanganList.unshift({ id: newId, pilar, tanggal, jenis, jumlah, keterangan });
+            showToast("Transaksi kas berhasil ditambahkan");
+
+            persistData();
+            closeKeuanganModal();
+        }
+
+        function deleteKeuangan(id) {
+            const t = keuanganList.find(x => x.id === id);
+            openDeleteModal(`Hapus catatan transaksi "${t ? t.keterangan : ''}"?`, () => {
+                keuanganList = keuanganList.filter(x => x.id !== id);
+                showToast("Transaksi kas berhasil dihapus");
+                persistData();
+            });
+        }
+
+        function filterKeuangan() {
+            const filterPilar = document.getElementById('keuanganFilterPilar').value;
+
+            const filtered = keuanganList.filter(t => {
+                return filterPilar === "" || t.pilar === filterPilar;
+            });
+
+            // Urutkan berdasarkan tanggal terbaru
+            filtered.sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+            renderKeuanganTable(filtered);
+        }
+
+        function renderKeuanganTable(data) {
+            const tableBody = document.getElementById('keuanganTableBody');
+            const cardsContainer = document.getElementById('keuanganCardsContainer');
+            const emptyState = document.getElementById('keuanganEmptyState');
+
+            tableBody.innerHTML = "";
+            cardsContainer.innerHTML = "";
+
+            if (data.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            data.forEach(t => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-4 px-6 text-slate-500">${t.tanggal}</td>
+                    <td class="py-4 px-6"><span class="px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700">${t.pilar}</span></td>
+                    <td class="py-4 px-6 text-slate-500 max-w-xs truncate">${t.keterangan}</td>
+                    <td class="py-4 px-6">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${t.jenis === 'Masuk' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}">${t.jenis}</span>
+                    </td>
+                    <td class="py-4 px-6 text-right font-bold ${t.jenis === 'Masuk' ? 'text-emerald-600' : 'text-rose-600'}">${t.jenis === 'Masuk' ? '+' : '-'} ${formatRupiah(t.jumlah)}</td>
+                    <td class="py-4 px-6 text-center">
+                        <button onclick="deleteKeuangan('${t.id}')" class="text-rose-600 hover:bg-rose-50 p-2 rounded-lg transition" title="Hapus"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col space-y-3";
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-xs text-slate-400">${t.tanggal}</span>
+                            <h4 class="font-bold text-slate-700 text-sm mt-1">${t.keterangan}</h4>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">${t.pilar}</span>
+                    </div>
+                    <div class="flex items-center justify-between pt-2 border-t border-slate-200">
+                        <span class="text-sm font-bold ${t.jenis === 'Masuk' ? 'text-emerald-600' : 'text-rose-600'}">${t.jenis === 'Masuk' ? '+' : '-'} ${formatRupiah(t.jumlah)}</span>
+                        <button onclick="deleteKeuangan('${t.id}')" class="bg-rose-50 text-rose-700 py-1 px-2.5 rounded-lg text-xs font-bold">Hapus</button>
+                    </div>
+                `;
+                cardsContainer.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        // ================= BUSINESS LOGIC: LAPORAN & DOWNLOAD =================
+        function unduhLaporanBulanan() {
+            const mulai = document.getElementById('lapMulai').value;
+            const sampai = document.getElementById('lapSampai').value;
+
+            if (!mulai || !sampai) {
+                showToast("Silakan tentukan periode tanggal terlebih dahulu.", "error");
+                return;
+            }
+
+            // Saring transaksi berdasarkan rentang tanggal
+            const saring = keuanganList.filter(t => {
+                return t.tanggal >= mulai && t.tanggal <= sampai;
+            });
+
+            if (saring.length === 0) {
+                showToast("Tidak ada data transaksi kas pada rentang tanggal yang dipilih.", "error");
+                return;
+            }
+
+            // Urutkan kronologis
+            saring.sort((a,b) => new Date(a.tanggal) - new Date(b.tanggal));
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            // Header tabel
+            csvContent += "ID Transaksi,Tanggal,Pilar Kas,Jenis Transaksi,Keterangan,Uang Masuk (IDR),Uang Keluar (IDR)\n";
+
+            saring.forEach(t => {
+                const masuk = t.jenis === 'Masuk' ? t.jumlah : "0";
+                const keluar = t.jenis === 'Keluar' ? t.jumlah : "0";
+                const row = `"${t.id}","${t.tanggal}","${t.pilar}","${t.jenis}","${t.keterangan.replace(/"/g, '""')}","${masuk}","${keluar}"`;
+                csvContent += row + "\n";
+            });
+
+            // Proses Download File CSV/Excel
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Laporan_Bulanan_7_Pilar_Kas_${mulai}_ke_${sampai}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToast("Laporan Keuangan Bulanan sukses diunduh!");
+        }
+
+        // ================= GRAPHICS & VISUALISASI =================
+        function initDashboardChart() {
+            const ctx = document.getElementById('mainDashboardChart').getContext('2d');
+            mainChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Masuk', 'Keluar'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: ['#10b981', '#f43f5e'],
+                        borderRadius: 12,
+                        barThickness: 45
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+            updateChartData();
+        }
+
+        function updateChartData() {
+            if (!mainChart) return;
+
+            let masuk = 0;
+            let keluar = 0;
+
+            keuanganList.forEach(t => {
+                if (t.jenis === 'Masuk') masuk += Number(t.jumlah);
+                else keluar += Number(t.jumlah);
+            });
+
+            mainChart.data.datasets[0].data = [masuk, keluar];
+            mainChart.update();
+        }
+    </script>
+</body>
+</html>
+
+```
